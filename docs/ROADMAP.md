@@ -22,7 +22,7 @@
 - [x] `packages/core/datasets` 註冊表（15 個 dataset）
 - [x] 篩選 DSL 與 5 個預設策略
 - [x] `/api/mcp` 唯讀 tools、resources、prompts
-- [ ] 網站：首頁雷達、個股頁、大佬持倉頁
+- [x] 網站：首頁雷達、策略頁、個股頁、大佬持倉頁、內部人交易頁、MCP 說明頁
 
 ## Phase 3 — AI-native Dashboard
 

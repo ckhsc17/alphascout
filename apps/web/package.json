@@ -12,6 +12,7 @@
     "@alphascout/core": "workspace:*",
     "@alphascout/db": "workspace:*",
     "@modelcontextprotocol/server": "^2.4.0",
+    "lightweight-charts": "^5.2.1",
     "mcp-handler": "2.3.0",
     "next": "16.4.3",
     "react": "19.3.0",
