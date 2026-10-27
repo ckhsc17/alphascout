@@ -19,9 +19,9 @@
 
 ## Phase 2 — Datasets + 唯讀 MCP + 預設頁面
 
-- [ ] `packages/core/datasets` 註冊表
-- [ ] 篩選 DSL 與 3–5 個預設策略
-- [ ] `/api/mcp` 唯讀 tools、resources、prompts
+- [x] `packages/core/datasets` 註冊表（15 個 dataset）
+- [x] 篩選 DSL 與 5 個預設策略
+- [x] `/api/mcp` 唯讀 tools、resources、prompts
 - [ ] 網站：首頁雷達、個股頁、大佬持倉頁
 
 ## Phase 3 — AI-native Dashboard

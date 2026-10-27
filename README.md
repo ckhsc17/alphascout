@@ -13,6 +13,30 @@
 
 AlphaScout 本身不跑 LLM，所以不需要我們的 API key，你用的是你自己的 AI。
 
+## 用你的 AI 連上 AlphaScout（MCP）
+
+在支援遠端 MCP 的 client（Claude Code、Claude Desktop、Cursor…）加入：
+
+```json
+{
+  "mcpServers": {
+    "alphascout": { "url": "https://<domain>/api/mcp" }
+  }
+}
+```
+
+然後直接問：「今天投信連買又剛站上月線的台股有哪些？」「巴菲特上一季新買了什麼？」「最近 30 天有哪些美股公司出現多位內部人一起買進？」
+
+| Tool                                                   | 用途                                         |
+| ------------------------------------------------------ | -------------------------------------------- |
+| `list_datasets` / `describe_dataset` / `query_dataset` | 探索並查詢所有資料集                         |
+| `search_securities`                                    | 以代號或名稱找台股                           |
+| `get_stock_overview`                                   | 台股個股：技術面、三大法人、千張大戶、月營收 |
+| `screen_tw_stocks`                                     | 用條件或預設策略篩選台股                     |
+| `get_investor_moves`                                   | 大佬 13F 季度增減持                          |
+| `get_consensus_picks`                                  | 多位大佬同時買進／持有的標的                 |
+| `get_insider_activity`                                 | 美股內部人交易與集體買進                     |
+
 ## 文件
 
 - [架構設計](docs/ARCHITECTURE.md)

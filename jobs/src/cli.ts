@@ -1,4 +1,5 @@
 import { parseArgs } from "node:util";
+import { DATASETS, runDataset } from "@alphascout/core/datasets";
 import { createDb } from "@alphascout/db";
 import { addDays, todayInTaipei, weekdaysBetween } from "./lib/dates.ts";
 import { log, withIngestRun } from "./lib/run.ts";
@@ -25,6 +26,7 @@ Commands:
   us:13f [--since YYYY-MM-DD]        Fetch new 13F filings for tracked investors (default: 9 quarters)
   us:cusips                          Map new 13F CUSIPs to tickers via OpenFIGI
   us:form4 [--date D | --from D --to D]  Ingest Form 4 insider trades (default: yesterday, UTC)
+  datasets:check                     Run every dataset's example params against the database
 `;
 
 async function main() {
@@ -137,6 +139,25 @@ async function main() {
     case "us:cusips":
       await withIngestRun(db, "us:cusips", null, () => mapNewCusips(db));
       break;
+
+    case "datasets:check": {
+      let failed = 0;
+      for (const dataset of DATASETS) {
+        const started = Date.now();
+        try {
+          const result = await runDataset(db, dataset, dataset.example);
+          log(
+            `ok   ${dataset.id.padEnd(22)} ${String(result.rows.length).padStart(3)} rows  asOf=${result.asOf}  ${Date.now() - started}ms`,
+          );
+          if (result.rows[0]) console.log(`     ${JSON.stringify(result.rows[0]).slice(0, 220)}`);
+        } catch (err) {
+          failed++;
+          log(`FAIL ${dataset.id}: ${String(err)}`);
+        }
+      }
+      if (failed) process.exitCode = 1;
+      break;
+    }
 
     default:
       console.error(USAGE);
