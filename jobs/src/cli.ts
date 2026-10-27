@@ -1,3 +1,4 @@
+import { writeSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { DATASETS, runDataset } from "@alphascout/core/datasets";
 import { createDb } from "@alphascout/db";
@@ -182,7 +183,9 @@ function requireRange(values: { from?: string; to?: string }) {
 main().then(
   () => process.exit(),
   (err) => {
-    console.error(err);
+    // Write synchronously: process.exit() can drop buffered output when stderr is a pipe (CI).
+    writeSync(2, `${err instanceof Error ? (err.stack ?? err.message) : String(err)}\n`);
+    if (err instanceof Error && err.cause) writeSync(2, `cause: ${String(err.cause)}\n`);
     process.exit(1);
   },
 );
