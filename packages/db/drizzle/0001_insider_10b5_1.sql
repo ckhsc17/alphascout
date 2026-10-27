@@ -1,0 +1,1 @@
+ALTER TABLE "us_insider_trades" ADD COLUMN "is10b51_plan" boolean;

@@ -20,10 +20,15 @@
 | **SEC 13(f) Securities List** | 13F 可申報證券清單（CUSIP、發行人）                                      | 每季                           | 輔助 CUSIP 對照                                                       |
 | **OpenFIGI**（Bloomberg）     | CUSIP → ticker 對照                                                      | 依需求，結果快取在 `cusip_map` | 免費，申請 API key 可以提高額度                                       |
 
-### 實作重點
+### 台股實作重點
+
+- **月營收**：OpenAPI 只有最新月份，歷史月份從 MOPS 每月彙總頁（`mopsov.twse.com.tw/nas/t21/…`，Big5 HTML）抓取。快照只在法定公布期限（次月 10 日）後才使用該月營收，避免回測時偷看未來資料。
+- **集保股權分散**與**內部人持股轉讓事前申報**：官方只提供最新一期，沒有歷史，所以從上線日開始每天累積。集保只存 400 張以上的級距（12–15）與總計，以控制資料庫容量。
+
+### 美股實作重點
 
 - **13F**：從 EDGAR full-index 找出追蹤中機構的新申報，解析 information table XML；遇到修正申報（13F-HR/A）要正確合併。算出季對季差異，寫入 `us_13f_changes`。
-- **Form 4**：每日掃描 Form 4 申報並解析 XML。重點訊號是交易代碼 `P`（公開市場買進），不是授予或行使選擇權，這兩種要過濾掉。
+- **Form 4**：讀 EDGAR 每日 form index（`daily-index/…/form.YYYYMMDD.idx`），逐份抓 submission `.txt` 並解析其中的 ownership XML，同時記錄是否為 10b5-1 預排交易。重點訊號是交易代碼 `P`（公開市場買進），不是授予或行使選擇權，這兩種要過濾掉。
 - **限制要寫在 UI 上**：13F 最多延遲 45 天，只涵蓋美股多頭部位與部分選擇權，看不到空單與海外持股。
 
 ## 之後才做

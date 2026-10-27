@@ -1,0 +1,40 @@
+name: TW daily
+
+on:
+  schedule:
+    # 18:00 Asia/Taipei on weekdays, after TWSE / TPEx publish institutional flows.
+    - cron: "0 10 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Trading date (YYYY-MM-DD). Defaults to today in Taipei."
+        required: false
+
+concurrency:
+  group: tw-daily
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Sync securities
+        run: pnpm --filter @alphascout/jobs job tw:securities
+      - name: Refresh monthly revenue
+        run: pnpm --filter @alphascout/jobs job tw:revenue
+      - name: Ingest latest TDCC shareholding week
+        run: pnpm --filter @alphascout/jobs job tw:tdcc
+      - name: Ingest latest insider transfer reports
+        run: pnpm --filter @alphascout/jobs job tw:insider
+      - name: Ingest prices, flows and snapshots
+        run: pnpm --filter @alphascout/jobs job tw:daily ${{ inputs.date && format('--date {0}', inputs.date) || '' }}

@@ -4,17 +4,18 @@
 
 ## Phase 0 — 地基
 
-- [ ] Monorepo（pnpm + Turborepo）、Biome、Vitest、CI
-- [ ] Neon 資料庫（Vercel Marketplace）、Drizzle schema、第一個 migration
-- [ ] Next.js 部署到 Vercel（空殼頁面 + 免責聲明）
+- [x] Monorepo（pnpm + Turborepo）、Biome、Vitest、CI
+- [x] Neon 資料庫（Vercel Marketplace）、Drizzle schema、第一個 migration
+- [x] Next.js 部署到 Vercel（空殼頁面 + 免責聲明）
 
 ## Phase 1 — 資料層
 
-- [ ] 台股：TWSE / TPEx 價量與法人、MOPS 月營收、TDCC 股權分散
-- [ ] 美股：EDGAR 13F（預設約 20 位大佬）＋ OpenFIGI CUSIP 對照、Form 4
-- [ ] `indicators` 與指標快照、13F 季對季差異（都要有測試）
-- [ ] Backfill：台股近 1 年、13F 近 8 季
-- [ ] GitHub Actions 排程、`ingest_runs` 資料新鮮度紀錄
+- [x] 台股：TWSE / TPEx 價量與法人
+- [x] 台股：MOPS 月營收、TDCC 股權分散、內部人轉讓（後兩者官方只提供最新一期，從 2026-10 開始逐日累積）
+- [x] 美股：EDGAR 13F（22 位大佬）＋ OpenFIGI CUSIP 對照、Form 4
+- [x] `indicators` 與指標快照、13F 季對季差異（都要有測試）
+- [x] Backfill：台股近 1 年、13F 近 8 季、Form 4 近 1 個月
+- [x] GitHub Actions 排程、`ingest_runs` 資料新鮮度紀錄
 
 ## Phase 2 — Datasets + 唯讀 MCP + 預設頁面
 

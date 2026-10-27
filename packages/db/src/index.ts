@@ -10,4 +10,5 @@ export function createDb(url = process.env.DATABASE_URL) {
 }
 
 export type Db = ReturnType<typeof createDb>;
+export { upsertRows } from "./upsert.ts";
 export { schema };

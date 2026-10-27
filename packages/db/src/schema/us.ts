@@ -109,6 +109,8 @@ export const usInsiderTrades = pgTable(
     isOfficer: boolean().notNull().default(false),
     isTenPercentOwner: boolean().notNull().default(false),
     officerTitle: text(),
+    /** Declared as made under a Rule 10b5-1 trading plan (pre-scheduled, weaker signal). */
+    is10b51Plan: boolean(),
     transactionDate: date().notNull(),
     /** SEC transaction code: P = open-market purchase, S = sale, A = grant, M = option exercise, … */
     code: text().notNull(),

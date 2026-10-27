@@ -1,0 +1,20 @@
+{
+  "name": "@alphascout/jobs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "job": "tsx --env-file-if-exists=../.env.local src/cli.ts",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@alphascout/core": "workspace:*",
+    "@alphascout/db": "workspace:*",
+    "drizzle-orm": "^0.45.4",
+    "tsx": "^4.23.15"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "typescript": "^5"
+  }
+}

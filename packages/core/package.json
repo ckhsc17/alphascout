@@ -5,16 +5,21 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./indicators": "./src/indicators/index.ts"
+    "./indicators": "./src/indicators/index.ts",
+    "./providers/tw": "./src/providers/tw/index.ts",
+    "./features": "./src/features/tw-snapshot.ts",
+    "./providers/sec": "./src/providers/sec/index.ts"
   },
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc"
   },
   "dependencies": {
+    "fast-xml-parser": "^5.11.2",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@types/node": "^24.19.2",
     "typescript": "^5",
     "vitest": "^5.0.5"
   }
