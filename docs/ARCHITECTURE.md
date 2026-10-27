@@ -53,7 +53,7 @@ AlphaScout **本身不跑 LLM**。我們只做三件事：
                 │ packages/core：datasets、screener、widget spec
                 ▼
  ┌──────────────────────────────────────────┐
- │ Supabase：Postgres + Auth                 │
+ │ Neon Postgres（經 Vercel Marketplace）       │
  │ 市場資料 / 指標快照 / 13F / 內部人 /          │
  │ users / api_keys / dashboards / widgets   │
  └──────────────▲───────────────────────────┘
@@ -80,23 +80,24 @@ AlphaScout **本身不跑 LLM**。我們只做三件事：
 
 ## 4. Tech Stack
 
-| 層 | 選擇 | 理由 |
-|---|---|---|
-| 語言 | **TypeScript（全專案）** | 型別從 DB schema 一路貫穿到 dataset、MCP tool、widget。指標自己實作，不依賴 TA-Lib 的 C 擴充 |
-| Monorepo | **pnpm workspaces + Turborepo** | 標準、快、Vercel 原生支援 |
-| Web | **Next.js（App Router）** | Vercel 一等公民；RSC 直接讀 DB |
-| UI | **Tailwind CSS + shadcn/ui** | 開源專案友善 |
-| 圖表 | **TradingView Lightweight Charts**（K 線）＋ **Recharts**（一般圖表） | K 線專業；其餘 widget 型別用 Recharts 涵蓋 |
-| Dashboard 版面 | **react-grid-layout** | 可拖拉、可縮放，PostHog 式的格狀版面 |
-| MCP | **`mcp-handler` + `@modelcontextprotocol/sdk`** | 掛在 Next.js route，和網站同一個部署 |
-| 驗證 | **Zod** | dataset 參數、篩選 DSL、widget spec、API 邊界共用 |
-| DB / Auth | **Supabase**（Postgres + Auth，GitHub 登入） | 免費額度夠 MVP；Auth 用來管理 dashboard 擁有者與 API key |
-| ORM | **Drizzle ORM + drizzle-kit** | 型別安全，migration 用檔案管理 |
-| XML 解析 | **fast-xml-parser** | 解析 13F information table 與 Form 4 |
-| Rate limit | **Upstash Redis**（Vercel Marketplace） | serverless 友善 |
-| 測試 / Lint | **Vitest** / **Biome** | 指標、DSL、13F 差異計算都要有單元測試 |
-| CI / 排程 | **GitHub Actions** | |
-| 聊天（最後一個 phase） | **Vercel AI SDK**，BYOK | 只在瀏覽器端用使用者的 key，伺服器不經手 |
+| 層                     | 選擇                                                                  | 理由                                                                                         |
+| ---------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 語言                   | **TypeScript（全專案）**                                              | 型別從 DB schema 一路貫穿到 dataset、MCP tool、widget。指標自己實作，不依賴 TA-Lib 的 C 擴充 |
+| Monorepo               | **pnpm workspaces + Turborepo**                                       | 標準、快、Vercel 原生支援                                                                    |
+| Web                    | **Next.js（App Router）**                                             | Vercel 一等公民；RSC 直接讀 DB                                                               |
+| UI                     | **Tailwind CSS + shadcn/ui**                                          | 開源專案友善                                                                                 |
+| 圖表                   | **TradingView Lightweight Charts**（K 線）＋ **Recharts**（一般圖表） | K 線專業；其餘 widget 型別用 Recharts 涵蓋                                                   |
+| Dashboard 版面         | **react-grid-layout**                                                 | 可拖拉、可縮放，PostHog 式的格狀版面                                                         |
+| MCP                    | **`mcp-handler` + `@modelcontextprotocol/sdk`**                       | 掛在 Next.js route，和網站同一個部署                                                         |
+| 驗證                   | **Zod**                                                               | dataset 參數、篩選 DSL、widget spec、API 邊界共用                                            |
+| DB                     | **Neon Postgres**（透過 Vercel Marketplace）                          | serverless Postgres，免費額度夠 MVP；env 自動注入 Vercel；之後新聞 RAG 可開 `pgvector`       |
+| Auth                   | **Better Auth**（GitHub 登入）＋ MCP OAuth plugin                     | 開源、資料存在自己的 Postgres；內建 MCP OAuth 支援，讓 Claude.ai / ChatGPT 能登入            |
+| ORM                    | **Drizzle ORM + drizzle-kit**                                         | 型別安全，migration 用檔案管理                                                               |
+| XML 解析               | **fast-xml-parser**                                                   | 解析 13F information table 與 Form 4                                                         |
+| Rate limit             | **Upstash Redis**（Vercel Marketplace）                               | serverless 友善                                                                              |
+| 測試 / Lint            | **Vitest** / **Biome**                                                | 指標、DSL、13F 差異計算都要有單元測試                                                        |
+| CI / 排程              | **GitHub Actions**                                                    |                                                                                              |
+| 聊天（最後一個 phase） | **Vercel AI SDK**，BYOK                                               | 只在瀏覽器端用使用者的 key，伺服器不經手                                                     |
 
 ---
 
@@ -138,22 +139,22 @@ defineDataset({
 
 初版 dataset 清單：
 
-| 市場 | Dataset | 內容 |
-|---|---|---|
-| TW | `tw.prices` | 日 K |
-| TW | `tw.technicals` | 指標快照時間序列 |
-| TW | `tw.institutional_flows` | 三大法人 |
-| TW | `tw.major_holders` | 集保股權分散：千張大戶持股比例、人數（每週） |
-| TW | `tw.insider_transfers` | 內部人持股轉讓申報 |
-| TW | `tw.monthly_revenue` | 月營收、YoY、MoM |
-| TW | `tw.screen` | 執行篩選 DSL |
-| TW | `tw.leaderboard` | 排行（法人連買、大戶增幅、營收創新高…） |
-| US | `us.investors` | 追蹤中的機構（Berkshire、Scion、Bridgewater、ARK…） |
-| US | `us.13f_holdings` | 某機構某季持倉 |
-| US | `us.13f_changes` | 季對季差異：新建倉 / 清倉 / 加碼 / 減碼 |
-| US | `us.13f_consensus` | 多位大佬同時持有或同時加碼的標的 |
-| US | `us.insider_trades` | Form 4 交易（可篩選只看公開市場買進，代碼 `P`） |
-| US | `us.insider_clusters` | 同一家公司短期內多位內部人一起買進 |
+| 市場 | Dataset                  | 內容                                                |
+| ---- | ------------------------ | --------------------------------------------------- |
+| TW   | `tw.prices`              | 日 K                                                |
+| TW   | `tw.technicals`          | 指標快照時間序列                                    |
+| TW   | `tw.institutional_flows` | 三大法人                                            |
+| TW   | `tw.major_holders`       | 集保股權分散：千張大戶持股比例、人數（每週）        |
+| TW   | `tw.insider_transfers`   | 內部人持股轉讓申報                                  |
+| TW   | `tw.monthly_revenue`     | 月營收、YoY、MoM                                    |
+| TW   | `tw.screen`              | 執行篩選 DSL                                        |
+| TW   | `tw.leaderboard`         | 排行（法人連買、大戶增幅、營收創新高…）             |
+| US   | `us.investors`           | 追蹤中的機構（Berkshire、Scion、Bridgewater、ARK…） |
+| US   | `us.13f_holdings`        | 某機構某季持倉                                      |
+| US   | `us.13f_changes`         | 季對季差異：新建倉 / 清倉 / 加碼 / 減碼             |
+| US   | `us.13f_consensus`       | 多位大佬同時持有或同時加碼的標的                    |
+| US   | `us.insider_trades`      | Form 4 交易（可篩選只看公開市場買進，代碼 `P`）     |
+| US   | `us.insider_clusters`    | 同一家公司短期內多位內部人一起買進                  |
 
 MCP、REST、widget 全部透過 dataset id + params 取資料，所以**新增一個 dataset，三個出口會同時拿到它**。
 
@@ -192,7 +193,7 @@ MCP、REST、widget 全部透過 dataset id + params 取資料，所以**新增�
 詳見 [MCP.md](./MCP.md)。
 
 - 讀取類 tools：匿名就能用，有 rate limit。
-- Dashboard 寫入類 tools：需要 API key（網站用 GitHub 登入後產生）。
+- Dashboard 讀寫類 tools：需要登入。Claude.ai、ChatGPT 等走 MCP OAuth；開發者工具可以用 API key。
 
 ---
 
@@ -200,37 +201,37 @@ MCP、REST、widget 全部透過 dataset id + params 取資料，所以**新增�
 
 **台股**
 
-| 表 | 主鍵 | 內容 |
-|---|---|---|
-| `securities` | `id` | market(TW/US), symbol, name, industry, board, cusip?, cik?, is_active |
-| `tw_daily_prices` | (security_id, date) | OHLCV、成交金額 |
-| `tw_institutional_flows` | (security_id, date) | foreign_net, trust_net, dealer_net |
-| `tw_shareholding_dist` | (security_id, week_date) | 各級距持股人數與比例；衍生欄位：千張大戶比例 |
-| `tw_insider_transfers` | `id` | 申報人、身分、轉讓方式、股數、申報日 |
-| `tw_monthly_revenue` | (security_id, year_month) | revenue, mom, yoy |
-| `tw_indicator_snapshots` | (security_id, date) | 均線、RSI、MACD、BB、ATR、量能、52 週高低、法人連買天數、大戶變化、營收 YoY…（**篩選唯一查詢來源**，刻意反正規化成寬表） |
+| 表                       | 主鍵                      | 內容                                                                                                                     |
+| ------------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `securities`             | `id`                      | market(TW/US), symbol, name, industry, board, cusip?, cik?, is_active                                                    |
+| `tw_daily_prices`        | (security_id, date)       | OHLCV、成交金額                                                                                                          |
+| `tw_institutional_flows` | (security_id, date)       | foreign_net, trust_net, dealer_net                                                                                       |
+| `tw_shareholding_dist`   | (security_id, week_date)  | 各級距持股人數與比例；衍生欄位：千張大戶比例                                                                             |
+| `tw_insider_transfers`   | `id`                      | 申報人、身分、轉讓方式、股數、申報日                                                                                     |
+| `tw_monthly_revenue`     | (security_id, year_month) | revenue, mom, yoy                                                                                                        |
+| `tw_indicator_snapshots` | (security_id, date)       | 均線、RSI、MACD、BB、ATR、量能、52 週高低、法人連買天數、大戶變化、營收 YoY…（**篩選唯一查詢來源**，刻意反正規化成寬表） |
 
 **美股：大佬追蹤**
 
-| 表 | 主鍵 | 內容 |
-|---|---|---|
-| `us_investors` | `cik` | 名稱、經理人、類型、是否在預設追蹤名單 |
-| `us_13f_filings` | `accession_no` | cik, period_of_report, filed_at, total_value, is_amendment |
-| `us_13f_holdings` | (accession_no, cusip, put_call) | issuer, class, value, shares |
-| `us_13f_changes` | (cik, period, cusip) | 預先算好：action(new/exit/add/trim)、股數與比例變化、佔投組權重 |
-| `cusip_map` | `cusip` | ticker、figi、來源（OpenFIGI）——13F 只有 CUSIP，需要對應成 ticker |
-| `us_insider_trades` | (accession_no, line) | issuer_cik, ticker, insider, role, txn_date, code(P/S/…), shares, price, value, shares_after |
+| 表                  | 主鍵                            | 內容                                                                                         |
+| ------------------- | ------------------------------- | -------------------------------------------------------------------------------------------- |
+| `us_investors`      | `cik`                           | 名稱、經理人、類型、是否在預設追蹤名單                                                       |
+| `us_13f_filings`    | `accession_no`                  | cik, period_of_report, filed_at, total_value, is_amendment                                   |
+| `us_13f_holdings`   | (accession_no, cusip, put_call) | issuer, class, value, shares                                                                 |
+| `us_13f_changes`    | (cik, period, cusip)            | 預先算好：action(new/exit/add/trim)、股數與比例變化、佔投組權重                              |
+| `cusip_map`         | `cusip`                         | ticker、figi、來源（OpenFIGI）——13F 只有 CUSIP，需要對應成 ticker                            |
+| `us_insider_trades` | (accession_no, line)            | issuer_cik, ticker, insider, role, txn_date, code(P/S/…), shares, price, value, shares_after |
 
 **平台**
 
-| 表 | 內容 |
-|---|---|
-| `screens` / `screen_results` | 預設策略與每日結果 |
-| `profiles` | 對應 Supabase Auth user |
-| `api_keys` | user_id、key 的 hash、prefix、last_used_at、revoked_at |
-| `dashboards` | owner_id、title、description、visibility(private/unlisted/public)、layout |
-| `widgets` | dashboard_id、spec(jsonb, 已驗證)、position |
-| `ingest_runs` | job、狀態、筆數、錯誤，用來顯示資料新鮮度 |
+| 表                                | 內容                                                                      |
+| --------------------------------- | ------------------------------------------------------------------------- |
+| `screens` / `screen_results`      | 預設策略與每日結果                                                        |
+| `user` / `session` / `account` 等 | Better Auth 管理的帳號表（GitHub 登入）                                   |
+| `api_keys`                        | user_id、key 的 hash、prefix、last_used_at、revoked_at                    |
+| `dashboards`                      | owner_id、title、description、visibility(private/unlisted/public)、layout |
+| `widgets`                         | dashboard_id、spec(jsonb, 已驗證)、position                               |
+| `ingest_runs`                     | job、狀態、筆數、錯誤，用來顯示資料新鮮度                                 |
 
 ---
 
@@ -239,7 +240,7 @@ MCP、REST、widget 全部透過 dataset id + params 取資料，所以**新增�
 - **免責聲明**：網站頁尾、MCP server 說明、大佬追蹤頁（「13F 有最多 45 天延遲，且只含美股多頭部位」）都要放。
 - **資料授權**：只用官方開放資料或允許再散布的來源，詳見 [DATA_SOURCES.md](./DATA_SOURCES.md)。
 - **SEC 存取規範**：requests 必須帶有聯絡資訊的 `User-Agent`，並且遵守每秒 10 次的請求上限。
-- **Secrets**：Supabase service role key 只放在 GitHub Actions secrets 和 Vercel server env。
-- **RLS**：所有表開啟 RLS。市場資料公開唯讀；dashboards 依 owner 與 visibility 控制存取。
+- **Secrets**：`DATABASE_URL` 與 auth secret 只放在 GitHub Actions secrets 和 Vercel server env。
+- **存取控制**：瀏覽器永遠不直接連資料庫，所有存取都經過伺服器端。jobs 用可寫入的連線；網站與 MCP 讀取市場資料時用唯讀角色；dashboards 依 owner 與 visibility 在應用層檢查權限。
 - **API key**：只存 hash，可以撤銷。
 - **Widget 安全**：widget spec 是純宣告式 JSON，前端只用固定元件渲染，不執行任何使用者或 AI 提供的程式碼。

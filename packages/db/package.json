@@ -1,0 +1,25 @@
+{
+  "name": "@alphascout/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
+  },
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "node --env-file-if-exists=../../.env.local ./node_modules/drizzle-kit/bin.cjs migrate",
+    "db:studio": "node --env-file-if-exists=../../.env.local ./node_modules/drizzle-kit/bin.cjs studio",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.4",
+    "postgres": "^3.4.9"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "drizzle-kit": "^0.31.11",
+    "typescript": "^5"
+  }
+}

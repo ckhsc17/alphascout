@@ -33,15 +33,15 @@ Widget = **資料來源（dataset + params）+ 呈現方式（viz）**，全部�
 
 ### Viz 類型（初版）
 
-| type | 用途 | 必要設定 |
-|---|---|---|
-| `candlestick` | K 線，可疊加均線 | `overlays?` |
-| `line` / `area` | 時間序列 | `x`, `y[]` |
-| `bar` | 比較、買賣超 | `x`, `y[]`, `stacked?` |
-| `table` | 清單、排行 | `columns`, `sort?` |
-| `stat` | 單一數字（KPI） | `value`, `compare?` |
-| `heatmap` | 產業／標的強弱 | `x`, `y`, `value` |
-| `text` | Markdown 說明（AI 可以寫上這個 dashboard 的解讀） | `markdown` |
+| type            | 用途                                              | 必要設定               |
+| --------------- | ------------------------------------------------- | ---------------------- |
+| `candlestick`   | K 線，可疊加均線                                  | `overlays?`            |
+| `line` / `area` | 時間序列                                          | `x`, `y[]`             |
+| `bar`           | 比較、買賣超                                      | `x`, `y[]`, `stacked?` |
+| `table`         | 清單、排行                                        | `columns`, `sort?`     |
+| `stat`          | 單一數字（KPI）                                   | `value`, `compare?`    |
+| `heatmap`       | 產業／標的強弱                                    | `x`, `y`, `value`      |
+| `text`          | Markdown 說明（AI 可以寫上這個 dashboard 的解讀） | `markdown`             |
 
 驗證規則：
 - `params` 必須通過該 dataset 的 Zod schema。
@@ -54,11 +54,11 @@ params 支援相對值，讓 dashboard 保持最新：`"period": "latest"`、`"d
 
 ## 權限與分享
 
-| visibility | 誰能看 |
-|---|---|
-| `private` | 只有 owner（網站登入，或 MCP 帶 owner 的 API key） |
-| `unlisted` | 知道網址的人 |
-| `public` | 所有人，並可出現在「社群 dashboards」列表 |
+| visibility | 誰能看                                             |
+| ---------- | -------------------------------------------------- |
+| `private`  | 只有 owner（網站登入，或 MCP 帶 owner 的 API key） |
+| `unlisted` | 知道網址的人                                       |
+| `public`   | 所有人，並可出現在「社群 dashboards」列表          |
 
 預設 `unlisted`，方便 AI 建完直接把連結丟給使用者。
 

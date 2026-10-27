@@ -1,0 +1,1383 @@
+{
+  "id": "2e554c42-f85d-4322-9e0f-f0f8dbb28585",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.ingest_runs": {
+      "name": "ingest_runs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "job": {
+          "name": "job",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target": {
+          "name": "target",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "ingest_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'running'"
+        },
+        "rows": {
+          "name": "rows",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "error": {
+          "name": "error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "finished_at": {
+          "name": "finished_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "ingest_runs_job_started_at_index": {
+          "name": "ingest_runs_job_started_at_index",
+          "columns": [
+            {
+              "expression": "job",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "started_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.securities": {
+      "name": "securities",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "market": {
+          "name": "market",
+          "type": "market",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "symbol": {
+          "name": "symbol",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "board": {
+          "name": "board",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "industry": {
+          "name": "industry",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cik": {
+          "name": "cik",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "securities_market_symbol_index": {
+          "name": "securities_market_symbol_index",
+          "columns": [
+            {
+              "expression": "market",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "symbol",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "securities_cik_index": {
+          "name": "securities_cik_index",
+          "columns": [
+            {
+              "expression": "cik",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"securities\".\"cik\" is not null",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tw_daily_prices": {
+      "name": "tw_daily_prices",
+      "schema": "",
+      "columns": {
+        "security_id": {
+          "name": "security_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "open": {
+          "name": "open",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "high": {
+          "name": "high",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "low": {
+          "name": "low",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "close": {
+          "name": "close",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "volume": {
+          "name": "volume",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "turnover": {
+          "name": "turnover",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transactions": {
+          "name": "transactions",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tw_daily_prices_security_id_securities_id_fk": {
+          "name": "tw_daily_prices_security_id_securities_id_fk",
+          "tableFrom": "tw_daily_prices",
+          "tableTo": "securities",
+          "columnsFrom": [
+            "security_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "tw_daily_prices_security_id_date_pk": {
+          "name": "tw_daily_prices_security_id_date_pk",
+          "columns": [
+            "security_id",
+            "date"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tw_indicator_snapshots": {
+      "name": "tw_indicator_snapshots",
+      "schema": "",
+      "columns": {
+        "security_id": {
+          "name": "security_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "close": {
+          "name": "close",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "change_pct": {
+          "name": "change_pct",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sma5": {
+          "name": "sma5",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sma20": {
+          "name": "sma20",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sma60": {
+          "name": "sma60",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sma120": {
+          "name": "sma120",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rsi14": {
+          "name": "rsi14",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "macd": {
+          "name": "macd",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "macd_signal": {
+          "name": "macd_signal",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "macd_hist": {
+          "name": "macd_hist",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bb_upper": {
+          "name": "bb_upper",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bb_lower": {
+          "name": "bb_lower",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "atr14": {
+          "name": "atr14",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "avg_volume20d": {
+          "name": "avg_volume20d",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "volume_ratio": {
+          "name": "volume_ratio",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "high52w": {
+          "name": "high52w",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "low52w": {
+          "name": "low52w",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "foreign_net_buy_streak": {
+          "name": "foreign_net_buy_streak",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "trust_net_buy_streak": {
+          "name": "trust_net_buy_streak",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dealer_net_buy_streak": {
+          "name": "dealer_net_buy_streak",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "major_holder_pct": {
+          "name": "major_holder_pct",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "major_holder_pct_change4w": {
+          "name": "major_holder_pct_change4w",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "revenue_yoy": {
+          "name": "revenue_yoy",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tw_indicator_snapshots_security_id_securities_id_fk": {
+          "name": "tw_indicator_snapshots_security_id_securities_id_fk",
+          "tableFrom": "tw_indicator_snapshots",
+          "tableTo": "securities",
+          "columnsFrom": [
+            "security_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "tw_indicator_snapshots_security_id_date_pk": {
+          "name": "tw_indicator_snapshots_security_id_date_pk",
+          "columns": [
+            "security_id",
+            "date"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tw_insider_transfers": {
+      "name": "tw_insider_transfers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "security_id": {
+          "name": "security_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reported_on": {
+          "name": "reported_on",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "insider_name": {
+          "name": "insider_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "method": {
+          "name": "method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "shares": {
+          "name": "shares",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_key": {
+          "name": "source_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tw_insider_transfers_security_id_securities_id_fk": {
+          "name": "tw_insider_transfers_security_id_securities_id_fk",
+          "tableFrom": "tw_insider_transfers",
+          "tableTo": "securities",
+          "columnsFrom": [
+            "security_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "tw_insider_transfers_sourceKey_unique": {
+          "name": "tw_insider_transfers_sourceKey_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "source_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tw_institutional_flows": {
+      "name": "tw_institutional_flows",
+      "schema": "",
+      "columns": {
+        "security_id": {
+          "name": "security_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "foreign_net": {
+          "name": "foreign_net",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "trust_net": {
+          "name": "trust_net",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dealer_net": {
+          "name": "dealer_net",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tw_institutional_flows_security_id_securities_id_fk": {
+          "name": "tw_institutional_flows_security_id_securities_id_fk",
+          "tableFrom": "tw_institutional_flows",
+          "tableTo": "securities",
+          "columnsFrom": [
+            "security_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "tw_institutional_flows_security_id_date_pk": {
+          "name": "tw_institutional_flows_security_id_date_pk",
+          "columns": [
+            "security_id",
+            "date"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tw_monthly_revenue": {
+      "name": "tw_monthly_revenue",
+      "schema": "",
+      "columns": {
+        "security_id": {
+          "name": "security_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "month": {
+          "name": "month",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "revenue": {
+          "name": "revenue",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mom": {
+          "name": "mom",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "yoy": {
+          "name": "yoy",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tw_monthly_revenue_security_id_securities_id_fk": {
+          "name": "tw_monthly_revenue_security_id_securities_id_fk",
+          "tableFrom": "tw_monthly_revenue",
+          "tableTo": "securities",
+          "columnsFrom": [
+            "security_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "tw_monthly_revenue_security_id_month_pk": {
+          "name": "tw_monthly_revenue_security_id_month_pk",
+          "columns": [
+            "security_id",
+            "month"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tw_shareholding_dist": {
+      "name": "tw_shareholding_dist",
+      "schema": "",
+      "columns": {
+        "security_id": {
+          "name": "security_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "week_date": {
+          "name": "week_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tier": {
+          "name": "tier",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "holders": {
+          "name": "holders",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shares": {
+          "name": "shares",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pct": {
+          "name": "pct",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tw_shareholding_dist_security_id_securities_id_fk": {
+          "name": "tw_shareholding_dist_security_id_securities_id_fk",
+          "tableFrom": "tw_shareholding_dist",
+          "tableTo": "securities",
+          "columnsFrom": [
+            "security_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "tw_shareholding_dist_security_id_week_date_tier_pk": {
+          "name": "tw_shareholding_dist_security_id_week_date_tier_pk",
+          "columns": [
+            "security_id",
+            "week_date",
+            "tier"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.cusip_map": {
+      "name": "cusip_map",
+      "schema": "",
+      "columns": {
+        "cusip": {
+          "name": "cusip",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "ticker": {
+          "name": "ticker",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "figi": {
+          "name": "figi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.us_13f_changes": {
+      "name": "us_13f_changes",
+      "schema": "",
+      "columns": {
+        "cik": {
+          "name": "cik",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "period": {
+          "name": "period",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cusip": {
+          "name": "cusip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "put_call": {
+          "name": "put_call",
+          "type": "put_call",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
+        },
+        "action": {
+          "name": "action",
+          "type": "position_action",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shares": {
+          "name": "shares",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prev_shares": {
+          "name": "prev_shares",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shares_change_pct": {
+          "name": "shares_change_pct",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "value": {
+          "name": "value",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "weight": {
+          "name": "weight",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "us_13f_changes_period_cusip_index": {
+          "name": "us_13f_changes_period_cusip_index",
+          "columns": [
+            {
+              "expression": "period",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "cusip",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "us_13f_changes_cik_us_investors_cik_fk": {
+          "name": "us_13f_changes_cik_us_investors_cik_fk",
+          "tableFrom": "us_13f_changes",
+          "tableTo": "us_investors",
+          "columnsFrom": [
+            "cik"
+          ],
+          "columnsTo": [
+            "cik"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "us_13f_changes_cik_period_cusip_put_call_pk": {
+          "name": "us_13f_changes_cik_period_cusip_put_call_pk",
+          "columns": [
+            "cik",
+            "period",
+            "cusip",
+            "put_call"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.us_13f_filings": {
+      "name": "us_13f_filings",
+      "schema": "",
+      "columns": {
+        "accession_no": {
+          "name": "accession_no",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cik": {
+          "name": "cik",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "period_of_report": {
+          "name": "period_of_report",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "filed_at": {
+          "name": "filed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "form_type": {
+          "name": "form_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_amendment": {
+          "name": "is_amendment",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "amendment_type": {
+          "name": "amendment_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_value": {
+          "name": "total_value",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "us_13f_filings_cik_period_of_report_index": {
+          "name": "us_13f_filings_cik_period_of_report_index",
+          "columns": [
+            {
+              "expression": "cik",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "period_of_report",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "us_13f_filings_cik_us_investors_cik_fk": {
+          "name": "us_13f_filings_cik_us_investors_cik_fk",
+          "tableFrom": "us_13f_filings",
+          "tableTo": "us_investors",
+          "columnsFrom": [
+            "cik"
+          ],
+          "columnsTo": [
+            "cik"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.us_13f_holdings": {
+      "name": "us_13f_holdings",
+      "schema": "",
+      "columns": {
+        "accession_no": {
+          "name": "accession_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cusip": {
+          "name": "cusip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "put_call": {
+          "name": "put_call",
+          "type": "put_call",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
+        },
+        "issuer": {
+          "name": "issuer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title_of_class": {
+          "name": "title_of_class",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "value": {
+          "name": "value",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shares": {
+          "name": "shares",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "us_13f_holdings_accession_no_us_13f_filings_accession_no_fk": {
+          "name": "us_13f_holdings_accession_no_us_13f_filings_accession_no_fk",
+          "tableFrom": "us_13f_holdings",
+          "tableTo": "us_13f_filings",
+          "columnsFrom": [
+            "accession_no"
+          ],
+          "columnsTo": [
+            "accession_no"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "us_13f_holdings_accession_no_cusip_put_call_pk": {
+          "name": "us_13f_holdings_accession_no_cusip_put_call_pk",
+          "columns": [
+            "accession_no",
+            "cusip",
+            "put_call"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.us_insider_trades": {
+      "name": "us_insider_trades",
+      "schema": "",
+      "columns": {
+        "accession_no": {
+          "name": "accession_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "line": {
+          "name": "line",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issuer_cik": {
+          "name": "issuer_cik",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ticker": {
+          "name": "ticker",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "insider_cik": {
+          "name": "insider_cik",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "insider_name": {
+          "name": "insider_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_director": {
+          "name": "is_director",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_officer": {
+          "name": "is_officer",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_ten_percent_owner": {
+          "name": "is_ten_percent_owner",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "officer_title": {
+          "name": "officer_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transaction_date": {
+          "name": "transaction_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "acquired": {
+          "name": "acquired",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shares": {
+          "name": "shares",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price": {
+          "name": "price",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "shares_owned_after": {
+          "name": "shares_owned_after",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "filed_at": {
+          "name": "filed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "us_insider_trades_issuer_cik_transaction_date_index": {
+          "name": "us_insider_trades_issuer_cik_transaction_date_index",
+          "columns": [
+            {
+              "expression": "issuer_cik",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "transaction_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "us_insider_trades_transaction_date_index": {
+          "name": "us_insider_trades_transaction_date_index",
+          "columns": [
+            {
+              "expression": "transaction_date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"us_insider_trades\".\"code\" = 'P'",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "us_insider_trades_accession_no_line_pk": {
+          "name": "us_insider_trades_accession_no_line_pk",
+          "columns": [
+            "accession_no",
+            "line"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.us_investors": {
+      "name": "us_investors",
+      "schema": "",
+      "columns": {
+        "cik": {
+          "name": "cik",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "manager": {
+          "name": "manager",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_featured": {
+          "name": "is_featured",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "us_investors_slug_unique": {
+          "name": "us_investors_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.ingest_status": {
+      "name": "ingest_status",
+      "schema": "public",
+      "values": [
+        "running",
+        "succeeded",
+        "failed"
+      ]
+    },
+    "public.market": {
+      "name": "market",
+      "schema": "public",
+      "values": [
+        "TW",
+        "US"
+      ]
+    },
+    "public.position_action": {
+      "name": "position_action",
+      "schema": "public",
+      "values": [
+        "new",
+        "exit",
+        "add",
+        "trim",
+        "hold"
+      ]
+    },
+    "public.put_call": {
+      "name": "put_call",
+      "schema": "public",
+      "values": [
+        "none",
+        "put",
+        "call"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

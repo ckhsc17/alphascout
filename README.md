@@ -23,14 +23,14 @@ AlphaScout 本身不跑 LLM，所以不需要我們的 API key，你用的是你
 
 ## Tech Stack
 
-TypeScript · Next.js · MCP · Supabase（Postgres + Auth）· Drizzle · Tailwind + shadcn/ui · Lightweight Charts · Recharts · Turborepo · GitHub Actions · Vercel
+TypeScript · Next.js · MCP · Neon Postgres · Better Auth · Drizzle · Tailwind + shadcn/ui · Lightweight Charts · Recharts · Turborepo · GitHub Actions · Vercel
 
 ## 開發
 
 ```bash
 corepack enable          # 啟用 pnpm
 pnpm install
-cp .env.example .env.local
+vercel env pull .env.local   # 或 cp .env.example .env.local 自行填入
 pnpm dev
 ```
 
