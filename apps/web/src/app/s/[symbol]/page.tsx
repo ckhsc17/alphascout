@@ -80,6 +80,28 @@ async function StockContent({ params }: { params: PageProps<"/s/[symbol]">["para
             value={<span className={trendClass(s.revenue_yoy)}>{fmtPct(s.revenue_yoy)}</span>}
           />
           <Stat label="ATR(14)" value={fmtNum(s.atr14)} />
+          <Stat
+            label="外資持股"
+            value={s.foreign_holding_pct == null ? "—" : `${fmtNum(s.foreign_holding_pct)}%`}
+            hint={
+              s.foreign_holding_change_20d == null
+                ? undefined
+                : `20 日 ${fmtSigned(s.foreign_holding_change_20d, 2)} pp`
+            }
+          />
+          <Stat
+            label="融資餘額"
+            value={s.margin_balance_lots == null ? "—" : `${fmtNum(s.margin_balance_lots, 0)} 張`}
+            hint={s.margin_change_5d == null ? undefined : `5 日 ${fmtPct(s.margin_change_5d)}`}
+          />
+          <Stat
+            label="券資比"
+            value={s.short_margin_ratio == null ? "—" : `${fmtNum(s.short_margin_ratio)}%`}
+          />
+          <Stat
+            label="當沖比"
+            value={s.day_trade_pct == null ? "—" : `${fmtNum(s.day_trade_pct, 1)}%`}
+          />
         </div>
       </Card>
 

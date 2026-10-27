@@ -28,9 +28,22 @@ export interface RevenuePoint {
   yoy: number | null;
 }
 
+export interface ChipPoint {
+  date: string;
+  /** 融資餘額, lots. */
+  marginBalance: number | null;
+  /** 融券餘額, lots. */
+  shortBalance: number | null;
+  /** %. */
+  foreignHoldingPct: number | null;
+  /** Shares. */
+  dayTradeVolume: number | null;
+}
+
 export interface SnapshotExtras {
   majorHolders?: MajorHolderPoint[];
   revenue?: RevenuePoint[];
+  chips?: ChipPoint[];
 }
 
 export interface TwSnapshot {
@@ -63,6 +76,17 @@ export interface TwSnapshot {
   majorHolderPctChange4w: number | null;
   /** YoY of the latest monthly revenue that had been published by this date. */
   revenueYoy: number | null;
+  /** 融資餘額, lots. */
+  marginBalance: number | null;
+  /** % change in 融資餘額 vs. 5 sessions earlier. */
+  marginChange5d: number | null;
+  /** 券資比 (short ÷ margin balance), %. */
+  shortMarginRatio: number | null;
+  foreignHoldingPct: number | null;
+  /** Change in foreign holding ratio vs. 20 sessions earlier, percentage points. */
+  foreignHoldingChange20d: number | null;
+  /** Day-trade volume ÷ total volume, %. */
+  dayTradePct: number | null;
 }
 
 const SESSIONS_PER_YEAR = 250;
@@ -91,6 +115,7 @@ export function computeTwSnapshots(
   const volSma20 = sma(volumes, 20);
 
   const flowByDate = new Map(flows.map((f) => [f.date, f]));
+  const chipByDate = new Map((extras.chips ?? []).map((c) => [c.date, c]));
   const streaks = {
     foreign: streakSeries(prices, flowByDate, (f) => f.foreignNet),
     trust: streakSeries(prices, flowByDate, (f) => f.trustNet),
@@ -135,6 +160,12 @@ export function computeTwSnapshots(
       dealerNetBuyStreak: streaks.dealer[i] ?? null,
       ...majorHolderFields(holders, p.date),
       revenueYoy: lastOnOrBefore(revenue, p.date, (r) => r.availableOn)?.yoy ?? null,
+      ...chipFields(
+        p,
+        chipByDate.get(p.date),
+        chipByDate.get(prices[i - 5]?.date ?? ""),
+        chipByDate.get(prices[i - 20]?.date ?? ""),
+      ),
     };
   });
 }
@@ -161,6 +192,28 @@ function streakSeries(
     else run = sign;
     return run;
   });
+}
+
+function chipFields(
+  bar: PricePoint,
+  today: ChipPoint | undefined,
+  fiveAgo: ChipPoint | undefined,
+  twentyAgo: ChipPoint | undefined,
+) {
+  const margin = today?.marginBalance ?? null;
+  const margin5 = fiveAgo?.marginBalance ?? null;
+  const foreign = today?.foreignHoldingPct ?? null;
+  const foreign20 = twentyAgo?.foreignHoldingPct ?? null;
+  const dayTrade = today?.dayTradeVolume ?? null;
+  return {
+    marginBalance: margin,
+    marginChange5d: margin != null && margin5 ? ((margin - margin5) / margin5) * 100 : null,
+    shortMarginRatio:
+      margin && today?.shortBalance != null ? (today.shortBalance / margin) * 100 : null,
+    foreignHoldingPct: foreign,
+    foreignHoldingChange20d: foreign != null && foreign20 != null ? foreign - foreign20 : null,
+    dayTradePct: dayTrade != null && bar.volume > 0 ? (dayTrade / bar.volume) * 100 : null,
+  };
 }
 
 function majorHolderFields(holders: MajorHolderPoint[], date: string) {

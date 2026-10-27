@@ -1,9 +1,11 @@
 import { writeSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { DATASETS, runDataset } from "@alphascout/core/datasets";
-import { createDb } from "@alphascout/db";
+import { createDb, schema } from "@alphascout/db";
+import { and, asc, gte, lte } from "drizzle-orm";
 import { addDays, todayInTaipei, weekdaysBetween } from "./lib/dates.ts";
 import { log, withIngestRun } from "./lib/run.ts";
+import { ingestTwChips } from "./tw/chips.ts";
 import { ingestTwDay } from "./tw/daily.ts";
 import { ingestTwInsiderTransfers } from "./tw/insider.ts";
 import { ingestTwRevenue, monthsBetween } from "./tw/revenue.ts";
@@ -21,6 +23,7 @@ Commands:
   tw:daily [--date YYYY-MM-DD]       Ingest one day (default: today in Taipei) and update snapshots
   tw:backfill --from D --to D        Ingest every weekday in a range, then compute snapshots
   tw:snapshots --from D --to D       Recompute indicator snapshots only
+  tw:chips --from D --to D           Backfill margin, foreign holding and day-trade data only
   tw:revenue [--from YYYY-MM --to YYYY-MM]  Monthly revenue (default: last two months)
   tw:tdcc                            Latest weekly TDCC shareholding distribution
   tw:insider                         Latest daily insider transfer reports
@@ -59,6 +62,7 @@ async function main() {
         log(`${date}: no trading session`);
         break;
       }
+      await withIngestRun(db, "tw:chips", date, () => ingestTwChips(db, date, ids));
       await withIngestRun(db, "tw:snapshots", date, () =>
         computeTwSnapshotRange(db, [...ids.values()], date, date),
       );
@@ -69,14 +73,32 @@ async function main() {
       const { from, to } = requireRange(values);
       const ids = await loadTwSecurityIds(db);
       for (const date of weekdaysBetween(from, to)) {
-        await withIngestRun(db, "tw:daily", date, async () => {
+        const result = await withIngestRun(db, "tw:daily", date, async () => {
           const r = await ingestTwDay(db, date, ids);
           return r.prices + r.flows;
         });
+        if (result > 0) {
+          await withIngestRun(db, "tw:chips", date, () => ingestTwChips(db, date, ids));
+        }
       }
       await withIngestRun(db, "tw:snapshots", `${from}..${to}`, () =>
         computeTwSnapshotRange(db, [...ids.values()], from, to),
       );
+      break;
+    }
+
+    case "tw:chips": {
+      const { from, to } = requireRange(values);
+      const ids = await loadTwSecurityIds(db);
+      const sessions = await db
+        .select({ date: schema.twDailyPrices.date })
+        .from(schema.twDailyPrices)
+        .where(and(gte(schema.twDailyPrices.date, from), lte(schema.twDailyPrices.date, to)))
+        .groupBy(schema.twDailyPrices.date)
+        .orderBy(asc(schema.twDailyPrices.date));
+      for (const { date } of sessions) {
+        await withIngestRun(db, "tw:chips", date, () => ingestTwChips(db, date, ids));
+      }
       break;
     }
 

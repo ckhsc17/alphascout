@@ -46,6 +46,30 @@ export const NUMERIC_FIELDS = {
     description: "4-week change in major-holder share (percentage points)",
   },
   revenue_yoy: { column: "revenue_yoy", description: "Latest published monthly revenue YoY (%)" },
+  margin_balance_lots: {
+    column: "margin_balance",
+    description: "Margin-loan balance 融資餘額 (lots)",
+  },
+  margin_change_5d: {
+    column: "margin_change5d",
+    description: "5-session change in margin-loan balance (%); negative = retail deleveraging",
+  },
+  short_margin_ratio: {
+    column: "short_margin_ratio",
+    description: "Short balance ÷ margin balance 券資比 (%)",
+  },
+  foreign_holding_pct: {
+    column: "foreign_holding_pct",
+    description: "Share of outstanding shares held by foreign investors (%)",
+  },
+  foreign_holding_change_20d: {
+    column: "foreign_holding_change20d",
+    description: "20-session change in foreign holding ratio (percentage points)",
+  },
+  day_trade_pct: {
+    column: "day_trade_pct",
+    description: "Day-trade volume ÷ total volume 當沖比 (%)",
+  },
 } as const;
 
 export const TEXT_FIELDS = {

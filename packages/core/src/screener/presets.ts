@@ -73,6 +73,30 @@ export const SCREEN_PRESETS: ScreenPreset[] = [
     },
   },
   {
+    slug: "quiet-accumulation",
+    name: "法人默默買、散戶退場",
+    description:
+      "外資或投信連買 3 天以上、外資持股比例 20 日內上升、融資 5 日內減少，股價仍貼近月線且營收成長。",
+    screen: {
+      where: {
+        all: [
+          {
+            any: [
+              { field: "foreign_streak", op: ">=", value: 3 },
+              { field: "trust_streak", op: ">=", value: 3 },
+            ],
+          },
+          { field: "foreign_holding_change_20d", op: ">", value: 0 },
+          { field: "margin_change_5d", op: "<", value: 0 },
+          { field: "close", op: "<=", ref: "sma20", multiplier: 1.05 },
+          { field: "revenue_yoy", op: ">", value: 0 },
+          LIQUID,
+        ],
+      },
+      sort: { field: "foreign_holding_change_20d", dir: "desc" },
+    },
+  },
+  {
     slug: "oversold-bounce",
     name: "超跌反彈",
     description: "RSI 從 30 以下回升，且 MACD 柱狀體轉正。",

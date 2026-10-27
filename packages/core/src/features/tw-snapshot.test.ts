@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { computeTwSnapshots, type FlowPoint, type PricePoint } from "./tw-snapshot.ts";
+import {
+  type ChipPoint,
+  computeTwSnapshots,
+  type FlowPoint,
+  type PricePoint,
+} from "./tw-snapshot.ts";
 
 function bars(closes: number[], volume = 1000): PricePoint[] {
   return closes.map((close, i) => ({
@@ -94,5 +99,24 @@ describe("computeTwSnapshots", () => {
     });
     expect(snaps[8]?.revenueYoy).toBe(5); // 01-09
     expect(snaps[9]?.revenueYoy).toBe(12); // 01-10
+  });
+
+  it("derives margin, foreign-holding and day-trade fields by session offset", () => {
+    const prices = bars(new Array(21).fill(10), 10_000);
+    const chips: ChipPoint[] = prices.map((p, i) => ({
+      date: p.date,
+      marginBalance: 1000 + i * 10,
+      shortBalance: 50,
+      foreignHoldingPct: 30 + i * 0.1,
+      dayTradeVolume: i === 20 ? 2500 : null,
+    }));
+    const last = computeTwSnapshots(prices, [], { chips }).at(-1);
+    expect(last?.marginBalance).toBe(1200);
+    // vs. session 15 (1150 lots)
+    expect(last?.marginChange5d).toBeCloseTo((50 / 1150) * 100);
+    expect(last?.shortMarginRatio).toBeCloseTo((50 / 1200) * 100);
+    expect(last?.foreignHoldingChange20d).toBeCloseTo(2);
+    expect(last?.dayTradePct).toBe(25);
+    expect(computeTwSnapshots(prices, [], { chips }).at(-2)?.dayTradePct).toBeNull();
   });
 });

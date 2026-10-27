@@ -7,6 +7,7 @@ import {
   numeric,
   pgTable,
   primaryKey,
+  real,
   text,
 } from "drizzle-orm/pg-core";
 import { securities } from "./common.ts";
@@ -45,6 +46,29 @@ export const twInstitutionalFlows = pgTable(
     foreignNet: bigint({ mode: "number" }).notNull(),
     trustNet: bigint({ mode: "number" }).notNull(),
     dealerNet: bigint({ mode: "number" }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.securityId, t.date] })],
+);
+
+/**
+ * Daily per-stock chip data beyond 三大法人: margin trading (融資融券), foreign holding ratio and
+ * day-trading volume. Columns are nullable because each comes from a separate report.
+ */
+export const twDailyChips = pgTable(
+  "tw_daily_chips",
+  {
+    securityId: securityId(),
+    date: date().notNull(),
+    /** 融資餘額, lots. */
+    marginBalance: integer(),
+    /** 融券餘額, lots. */
+    shortBalance: integer(),
+    /** 資券互抵, lots. */
+    marginShortOffset: integer(),
+    /** 外資及陸資持股比率, %. */
+    foreignHoldingPct: real(),
+    /** 當日沖銷交易成交股數, shares. */
+    dayTradeVolume: bigint({ mode: "number" }),
   },
   (t) => [primaryKey({ columns: [t.securityId, t.date] })],
 );
@@ -123,6 +147,16 @@ export const twIndicatorSnapshots = pgTable(
     majorHolderPct: doublePrecision(),
     majorHolderPctChange4w: doublePrecision(),
     revenueYoy: doublePrecision(),
+    marginBalance: integer(),
+    /** % change in 融資餘額 over 5 sessions. */
+    marginChange5d: real(),
+    /** 券資比: short balance ÷ margin balance, %. */
+    shortMarginRatio: real(),
+    foreignHoldingPct: real(),
+    /** Change in foreign holding ratio over 20 sessions, percentage points. */
+    foreignHoldingChange20d: real(),
+    /** Day-trade volume ÷ total volume, %. */
+    dayTradePct: real(),
   },
   (t) => [primaryKey({ columns: [t.securityId, t.date] })],
 );

@@ -20,7 +20,7 @@ export async function computeTwSnapshotRange(
 
   for (let i = 0; i < securityIds.length; i += SECURITIES_PER_BATCH) {
     const batch = securityIds.slice(i, i + SECURITIES_PER_BATCH);
-    const [prices, flows, holders, revenue] = await Promise.all([
+    const [prices, flows, holders, revenue, chips] = await Promise.all([
       db
         .select()
         .from(schema.twDailyPrices)
@@ -63,12 +63,23 @@ export async function computeTwSnapshotRange(
             lte(schema.twMonthlyRevenue.month, to),
           ),
         ),
+      db
+        .select()
+        .from(schema.twDailyChips)
+        .where(
+          and(
+            inArray(schema.twDailyChips.securityId, batch),
+            gte(schema.twDailyChips.date, historyFrom),
+            lte(schema.twDailyChips.date, to),
+          ),
+        ),
     ]);
 
     const pricesBySecurity = groupBy(prices, (p) => p.securityId);
     const flowsBySecurity = groupBy(flows, (f) => f.securityId);
     const holdersBySecurity = groupBy(holders, (h) => h.securityId);
     const revenueBySecurity = groupBy(revenue, (r) => r.securityId);
+    const chipsBySecurity = groupBy(chips, (c) => c.securityId);
 
     const rows = [];
     for (const [securityId, series] of pricesBySecurity) {
@@ -90,6 +101,7 @@ export async function computeTwSnapshotRange(
       const extras = {
         majorHolders: holdersBySecurity.get(securityId) ?? [],
         revenue: revenueBySecurity.get(securityId) ?? [],
+        chips: chipsBySecurity.get(securityId) ?? [],
       };
       for (const snap of computeTwSnapshots(points, flowPoints, extras)) {
         if (snap.date >= from && snap.date <= to) rows.push({ securityId, ...snap });

@@ -1,3 +1,4 @@
+export * from "./chips.ts";
 export * from "./insider.ts";
 export * from "./parse.ts";
 export * from "./revenue.ts";

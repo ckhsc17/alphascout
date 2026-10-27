@@ -136,6 +136,28 @@ const SNAPSHOT_COLUMNS = {
     description: "YoY growth of the latest published monthly revenue",
     unit: "%",
   },
+  margin_balance_lots: {
+    type: "number",
+    description: "Margin-loan balance (融資餘額)",
+    unit: "lots",
+  },
+  margin_change_5d: {
+    type: "number",
+    description: "Change in margin-loan balance vs. 5 sessions earlier",
+    unit: "%",
+  },
+  short_margin_ratio: { type: "number", description: "Short ÷ margin balance (券資比)", unit: "%" },
+  foreign_holding_pct: {
+    type: "number",
+    description: "Share of outstanding shares held by foreign investors",
+    unit: "%",
+  },
+  foreign_holding_change_20d: {
+    type: "number",
+    description: "Change in foreign holding ratio vs. 20 sessions earlier",
+    unit: "percentage points",
+  },
+  day_trade_pct: { type: "number", description: "Day-trade share of volume (當沖比)", unit: "%" },
 } as const;
 
 /** SQL select list for snapshot columns, aliased to dataset column names. */
@@ -145,14 +167,21 @@ export const SNAPSHOT_SELECT = sql.raw(`
   s.avg_volume20d / 1000 as avg_volume_20d_lots, s.volume_ratio, s.high52w as high_52w,
   s.low52w as low_52w, s.foreign_net_buy_streak as foreign_streak,
   s.trust_net_buy_streak as trust_streak, s.dealer_net_buy_streak as dealer_streak,
-  s.major_holder_pct, s.major_holder_pct_change4w as major_holder_change_4w, s.revenue_yoy`);
+  s.major_holder_pct, s.major_holder_pct_change4w as major_holder_change_4w, s.revenue_yoy,
+  s.margin_balance as margin_balance_lots, s.margin_change5d as margin_change_5d,
+  s.short_margin_ratio, s.foreign_holding_pct,
+  s.foreign_holding_change20d as foreign_holding_change_20d, s.day_trade_pct`);
 
 export function formatSnapshotRow(r: Record<string, unknown>): Row {
   const out: Row = {};
   for (const [key, spec] of Object.entries(SNAPSHOT_COLUMNS)) {
     const v = r[key];
     out[key] =
-      spec.type === "date" ? isoDate(v) : key.endsWith("streak") ? (v as number | null) : round(v);
+      spec.type === "date"
+        ? isoDate(v)
+        : key.endsWith("streak") || key.endsWith("_lots")
+          ? (v as number | null)
+          : round(v);
   }
   return out;
 }
@@ -213,6 +242,74 @@ export const twInstitutionalFlows = defineDataset({
         trust_net_lots: round(t / LOT, 0),
         dealer_net_lots: round(d / LOT, 0),
         total_net_lots: round((f + t + d) / LOT, 0),
+      };
+    });
+    return { asOf: out.at(-1)?.date ?? null, rows: out };
+  },
+});
+
+export const twChips = defineDataset({
+  id: "tw.chips",
+  title: "Margin, foreign holding & day trading (融資融券・外資持股・當沖)",
+  description:
+    "Daily margin-loan and short balances, foreign holding ratio and day-trade share for one Taiwan stock, oldest first.",
+  params: z.object({ symbol: twSymbol, days: z.number().int().min(1).max(250).default(20) }),
+  example: { symbol: "2330", days: 20 },
+  source: TW_SOURCE,
+  notes: ["History starts 2026-04; earlier dates are not loaded."],
+  columns: {
+    date: { type: "date", description: "Trading date" },
+    margin_balance_lots: {
+      type: "number",
+      description: "Margin-loan balance (融資餘額)",
+      unit: "lots",
+    },
+    margin_change_lots: {
+      type: "number",
+      description: "Change in margin-loan balance vs. the previous session",
+      unit: "lots",
+    },
+    short_balance_lots: { type: "number", description: "Short balance (融券餘額)", unit: "lots" },
+    short_margin_ratio: {
+      type: "number",
+      description: "Short ÷ margin balance (券資比)",
+      unit: "%",
+    },
+    foreign_holding_pct: {
+      type: "number",
+      description: "Share of outstanding shares held by foreign investors",
+      unit: "%",
+    },
+    day_trade_pct: { type: "number", description: "Day-trade share of volume (當沖比)", unit: "%" },
+  },
+  async run(db, { symbol, days }) {
+    const s = await resolveTwSecurity(db, symbol);
+    const rows = await db.execute<Record<string, unknown>>(sql`
+      select * from (
+        select c.date, c.margin_balance, c.short_balance, c.foreign_holding_pct,
+          c.day_trade_volume, p.volume,
+          c.margin_balance - lag(c.margin_balance) over (order by c.date) as margin_change
+        from tw_daily_chips c
+        left join tw_daily_prices p on p.security_id = c.security_id and p.date = c.date
+        where c.security_id = ${s.id}
+        order by c.date desc limit ${days + 1}
+      ) t order by date`);
+    // One extra row was fetched so the first returned row has a previous-day change.
+    const out = rows.slice(rows.length > days ? 1 : 0).map((r) => {
+      const margin = r.margin_balance == null ? null : Number(r.margin_balance);
+      const short = r.short_balance == null ? null : Number(r.short_balance);
+      const volume = Number(r.volume ?? 0);
+      return {
+        date: isoDate(r.date),
+        margin_balance_lots: margin,
+        margin_change_lots: r.margin_change == null ? null : Number(r.margin_change),
+        short_balance_lots: short,
+        short_margin_ratio: margin && short != null ? round((short / margin) * 100) : null,
+        foreign_holding_pct: round(r.foreign_holding_pct),
+        day_trade_pct:
+          r.day_trade_volume != null && volume > 0
+            ? round((Number(r.day_trade_volume) / volume) * 100)
+            : null,
       };
     });
     return { asOf: out.at(-1)?.date ?? null, rows: out };

@@ -5,6 +5,7 @@ import { runScreen } from "../screener/run.ts";
 import { screenSchema } from "../screener/schema.ts";
 import { type Dataset, DatasetError, defineDataset } from "./define.ts";
 import {
+  twChips,
   twInsiderTransfers,
   twInstitutionalFlows,
   twMajorHolders,
@@ -136,6 +137,7 @@ export const DATASETS: Dataset[] = [
   twTechnicals,
   twInstitutionalFlows,
   twMajorHolders,
+  twChips,
   twMonthlyRevenue,
   twInsiderTransfers,
   twScreen,
