@@ -242,5 +242,9 @@ MCP、REST、widget 全部透過 dataset id + params 取資料，所以**新增�
 - **SEC 存取規範**：requests 必須帶有聯絡資訊的 `User-Agent`，並且遵守每秒 10 次的請求上限。
 - **Secrets**：`DATABASE_URL` 與 auth secret 只放在 GitHub Actions secrets 和 Vercel server env。
 - **存取控制**：瀏覽器永遠不直接連資料庫，所有存取都經過伺服器端。jobs 用可寫入的連線；網站與 MCP 讀取市場資料時用唯讀角色；dashboards 依 owner 與 visibility 在應用層檢查權限。
+- **公開流量的防護**：
+  - Vercel Firewall 對 `/api/*` 做每個 IP 每分鐘 120 次的速率限制。
+  - 網站與 MCP 以 `alphascout_web` 角色連線：只有 SELECT 權限，並在角色層級設定 `statement_timeout = 5s`（Neon 的 pooler 會忽略連線參數，所以要設在角色上）。
+  - 所有 dataset 參數都有上限（天數、筆數），篩選欄位走白名單、數值走綁定參數。
 - **API key**：只存 hash，可以撤銷。
 - **Widget 安全**：widget spec 是純宣告式 JSON，前端只用固定元件渲染，不執行任何使用者或 AI 提供的程式碼。
