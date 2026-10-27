@@ -31,7 +31,7 @@ Widget = **資料來源（dataset + params）+ 呈現方式（viz）**，全部�
 }
 ```
 
-### Viz 類型（初版）
+### Viz 類型
 
 | type            | 用途                                              | 必要設定               |
 | --------------- | ------------------------------------------------- | ---------------------- |
@@ -40,7 +40,6 @@ Widget = **資料來源（dataset + params）+ 呈現方式（viz）**，全部�
 | `bar`           | 比較、買賣超                                      | `x`, `y[]`, `stacked?` |
 | `table`         | 清單、排行                                        | `columns`, `sort?`     |
 | `stat`          | 單一數字（KPI）                                   | `value`, `compare?`    |
-| `heatmap`       | 產業／標的強弱                                    | `x`, `y`, `value`      |
 | `text`          | Markdown 說明（AI 可以寫上這個 dashboard 的解讀） | `markdown`             |
 
 驗證規則：

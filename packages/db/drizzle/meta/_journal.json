@@ -15,6 +15,13 @@
       "when": 1793091503173,
       "tag": "0001_insider_10b5_1",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793096282824,
+      "tag": "0002_auth_and_dashboards",
+      "breakpoints": true
     }
   ]
 }

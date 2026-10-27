@@ -11,12 +11,20 @@
   "dependencies": {
     "@alphascout/core": "workspace:*",
     "@alphascout/db": "workspace:*",
+    "@better-auth/cimd": "1.7.14",
+    "@better-auth/drizzle-adapter": "1.7.14",
+    "@better-auth/mcp": "1.7.14",
+    "@better-auth/oauth-provider": "1.7.14",
     "@modelcontextprotocol/server": "^2.4.0",
+    "better-auth": "^1.7.14",
     "lightweight-charts": "^5.2.1",
     "mcp-handler": "2.3.0",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-grid-layout": "^2.3.0",
+    "react-resizable": "^3.2.0",
+    "recharts": "^3.10.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {

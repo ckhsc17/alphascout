@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { Suspense } from "react";
+import { UserNav } from "@/components/user-nav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -22,6 +24,7 @@ const NAV = [
   { href: "/", label: "雷達" },
   { href: "/investors", label: "大佬持倉" },
   { href: "/insiders", label: "內部人交易" },
+  { href: "/dashboards", label: "Dashboards" },
   { href: "/mcp", label: "MCP" },
 ];
 
@@ -34,7 +37,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col">
         <header className="border-b border-border bg-surface">
           <nav className="mx-auto flex max-w-6xl items-center gap-6 overflow-x-auto px-4 py-3 text-sm">
-            <Link href="/" className="shrink-0 font-semibold tracking-tight">
+            <Link
+              href="/"
+              className="flex shrink-0 items-center gap-1.5 font-semibold tracking-tight"
+            >
+              <img src="/logo.svg" alt="" width={24} height={24} />
               AlphaScout
             </Link>
             {NAV.map((item) => (
@@ -46,12 +53,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 {item.label}
               </Link>
             ))}
-            <a
-              href="https://github.com/ckhsc17/alphascout"
-              className="ml-auto shrink-0 text-muted hover:text-foreground"
-            >
-              GitHub
-            </a>
+            <div className="ml-auto flex shrink-0 items-center gap-4">
+              <a
+                href="https://github.com/ckhsc17/alphascout"
+                className="text-muted hover:text-foreground"
+              >
+                GitHub
+              </a>
+              <Suspense fallback={<span className="w-10" />}>
+                <UserNav />
+              </Suspense>
+            </div>
           </nav>
         </header>
         <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</div>

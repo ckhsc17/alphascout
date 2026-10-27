@@ -1,4 +1,10 @@
+<p align="center">
+  <img src="docs/assets/wordmark-light.svg" alt="AlphaScout" width="480">
+</p>
+
 # AlphaScout
+
+網站：<https://alphascout-tw.vercel.app>
 
 開源的投資研究資料整合與視覺化中心，**AI-native**：用你自己的 AI，透過 MCP 查詢台股籌碼、美股大佬持倉與內部人交易，還能讓 AI 幫你建一個每天自動更新的客製 Dashboard。
 
@@ -20,10 +26,12 @@ AlphaScout 本身不跑 LLM，所以不需要我們的 API key，你用的是你
 ```json
 {
   "mcpServers": {
-    "alphascout": { "url": "https://<domain>/api/mcp" }
+    "alphascout": { "url": "https://alphascout-tw.vercel.app/api/mcp" }
   }
 }
 ```
+
+想讓 AI 幫你建 dashboard，改用帳號版網址 `https://alphascout-tw.vercel.app/api/mcp/account`，第一次連線時會跳出 GitHub 登入授權。
 
 然後直接問：「今天投信連買又剛站上月線的台股有哪些？」「巴菲特上一季新買了什麼？」「最近 30 天有哪些美股公司出現多位內部人一起買進？」
 

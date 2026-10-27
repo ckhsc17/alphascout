@@ -2,17 +2,20 @@
 
 MCP 是 AlphaScout 的主要介面，不是附加功能。使用者用自己的 AI 查資料、做分析、建 Dashboard。
 
-- Endpoint：`https://<domain>/api/mcp`（Streamable HTTP）
+- 公開 endpoint：`https://alphascout-tw.vercel.app/api/mcp`（Streamable HTTP，免登入，只有讀取 tools）
+- 帳號 endpoint：`https://alphascout-tw.vercel.app/api/mcp/account`（OAuth 2.1，讀取 ＋ Dashboard tools）
 - 實作：Next.js route handler + `mcp-handler`，與網站同一個部署
 - Server 端**不呼叫 LLM**，也不提供任何下單功能
 
 ## 認證
 
-| 等級    | 方式                                                      | 能做什麼                               |
-| ------- | --------------------------------------------------------- | -------------------------------------- |
-| 匿名    | 無                                                        | 所有讀取類 tools，依 IP 限流           |
-| OAuth   | MCP 規範的 OAuth 流程，由 Better Auth 提供（GitHub 登入） | 讀取額度較高 ＋ Dashboard 讀寫         |
-| API key | `Authorization: Bearer as_...`（網站登入後產生）          | 同 OAuth，給能自訂 header 的開發者工具 |
+| 等級    | 方式                                                       | 能做什麼                               |
+| ------- | ---------------------------------------------------------- | -------------------------------------- |
+| 匿名    | 無                                                         | 所有讀取類 tools，依 IP 限流           |
+| OAuth   | MCP 規範的 OAuth 流程，由 Better Auth 提供（GitHub 登入）  | 讀取額度較高 ＋ Dashboard 讀寫         |
+| API key | `Authorization: Bearer as_...`（網站登入後產生，尚未實作） | 同 OAuth，給能自訂 header 的開發者工具 |
+
+連到帳號 endpoint 時，server 回 401 並在 `WWW-Authenticate` 指向 `/.well-known/oauth-protected-resource/api/mcp/account`。Client 依此找到授權伺服器（`/api/auth`），支援 Client ID Metadata Document 與動態註冊，使用者在瀏覽器用 GitHub 登入、同意授權後取得 token。
 
 OAuth 是主要方式：Claude.ai、Claude Desktop、ChatGPT 等介面加入遠端 MCP 時走 OAuth，無法自帶 header。API key 給 Claude Code、Cursor、腳本等開發者工具。
 
@@ -37,13 +40,14 @@ OAuth 是主要方式：Claude.ai、Claude Desktop、ChatGPT 等介面加入遠�
 | `get_insider_activity` | 美股內部人交易，可篩選只看公開市場買進、集體買進       |
 | `get_consensus_picks`  | 多位大佬同時持有或同時加碼的標的                       |
 
-### Dashboard（需要登入：OAuth 或 API key）
+### Dashboard（帳號 endpoint 專用）
 
 | Tool                                             | 說明                                                |
 | ------------------------------------------------ | --------------------------------------------------- |
 | `list_dashboards`                                | 我的 dashboards                                     |
 | `get_dashboard`                                  | 取得 dashboard 與所有 widget spec                   |
 | `create_dashboard`                               | title、description、visibility → 回傳 id 與網址     |
+| `update_dashboard` / `delete_dashboard`          | 改名、改公開設定、刪除                              |
 | `add_widget` / `update_widget` / `remove_widget` | widget spec 規格見 [DASHBOARDS.md](./DASHBOARDS.md) |
 | `list_viz_types`                                 | 可用的圖表類型與設定說明                            |
 
@@ -72,7 +76,7 @@ OAuth 是主要方式：Claude.ai、Claude Desktop、ChatGPT 等介面加入遠�
 {
   "mcpServers": {
     "alphascout": {
-      "url": "https://<domain>/api/mcp",
+      "url": "https://alphascout-tw.vercel.app/api/mcp",
       "headers": { "Authorization": "Bearer as_xxx" } // 選填，只查資料可以不用
     }
   }

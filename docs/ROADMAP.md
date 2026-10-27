@@ -26,11 +26,12 @@
 
 ## Phase 3 — AI-native Dashboard
 
-- [ ] Better Auth（GitHub 登入）
-- [ ] MCP OAuth（給 Claude.ai / ChatGPT 等）＋ API key（給開發者工具）
-- [ ] Widget spec 與渲染元件
-- [ ] MCP dashboard 讀寫 tools
-- [ ] `/d/[id]` 頁面：版面編輯、分享、fork
+- [x] Better Auth（GitHub 登入）
+- [x] MCP OAuth（給 Claude.ai / ChatGPT 等）
+- [ ] API key（給開發者工具）
+- [x] Widget spec 與渲染元件
+- [x] MCP dashboard 讀寫 tools
+- [x] `/d/[id]` 頁面：版面編輯、分享、fork
 
 ## Phase 4 — 擴充
 
@@ -38,6 +39,7 @@
 - [ ] 國會議員交易、ARK 每日交易
 - [ ] MCP Apps（widget 直接顯示在對話中）
 - [ ] Telegram / Discord 推播
+- [ ] Heatmap 等更多 viz 類型
 
 ## Phase 5 — 網站聊天（BYOK）
 

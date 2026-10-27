@@ -3,7 +3,8 @@ import { Card } from "@/components/ui";
 
 export const metadata: Metadata = { title: "MCP" };
 
-const ENDPOINT = "https://alphascout-bowens-projects-f3ea0750.vercel.app/api/mcp";
+const ENDPOINT = "https://alphascout-tw.vercel.app/api/mcp";
+const ACCOUNT_ENDPOINT = `${ENDPOINT}/account`;
 
 const TOOLS = [
   ["list_datasets / describe_dataset / query_dataset", "探索並查詢所有資料集（15 個）"],
@@ -13,6 +14,13 @@ const TOOLS = [
   ["get_investor_moves", "大佬 13F 季度新建倉、加碼、減碼、清倉"],
   ["get_consensus_picks", "多位大佬同時買進或持有的標的"],
   ["get_insider_activity", "美股內部人交易與集體買進"],
+];
+
+const DASHBOARD_TOOLS = [
+  ["list_viz_types", "可用的圖表類型與 spec 範例"],
+  ["list_dashboards / get_dashboard", "查看你的 dashboards"],
+  ["create_dashboard / update_dashboard / delete_dashboard", "建立、改名、改公開設定、刪除"],
+  ["add_widget / update_widget / remove_widget", "用任一資料集加圖表，AI 會自動排版"],
 ];
 
 const EXAMPLES = [
@@ -30,14 +38,30 @@ export default function McpPage() {
         <h1 className="text-2xl font-semibold tracking-tight">用你自己的 AI 查 AlphaScout</h1>
         <p className="mt-1 text-sm text-muted">
           AlphaScout 提供 MCP（Model Context Protocol）server。把它加進 Claude、Cursor 等支援遠端
-          MCP 的 AI，就能直接用自然語言查詢資料，不需要打開網頁。目前不需要登入，也不需要 API key。
+          MCP 的 AI，就能直接用自然語言查詢資料，不需要打開網頁。查資料不需要登入；想讓 AI 幫你建
+          dashboard，再用 GitHub 登入即可。
         </p>
       </div>
 
       <Card title="連線網址">
-        <code className="block overflow-x-auto rounded-md bg-background px-3 py-2 text-sm">
-          {ENDPOINT}
-        </code>
+        <div className="space-y-3 text-sm">
+          <div>
+            <h3 className="font-medium">公開版：只查資料，免登入</h3>
+            <code className="mt-1 block overflow-x-auto rounded-md bg-background px-3 py-2">
+              {ENDPOINT}
+            </code>
+          </div>
+          <div>
+            <h3 className="font-medium">帳號版：查資料＋讓 AI 建 dashboard</h3>
+            <code className="mt-1 block overflow-x-auto rounded-md bg-background px-3 py-2">
+              {ACCOUNT_ENDPOINT}
+            </code>
+            <p className="mt-1 text-muted">
+              第一次連線時，AI client 會開啟瀏覽器讓你用 GitHub
+              登入並授權。下面的設定方式兩個網址都適用。
+            </p>
+          </div>
+        </div>
       </Card>
 
       <Card title="設定方式">
@@ -80,6 +104,20 @@ export default function McpPage() {
             </div>
           ))}
         </dl>
+      </Card>
+
+      <Card title="Dashboard tools（帳號版）">
+        <dl className="space-y-2 text-sm">
+          {DASHBOARD_TOOLS.map(([name, desc]) => (
+            <div key={name}>
+              <dt className="font-mono text-xs">{name}</dt>
+              <dd className="text-muted">{desc}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-3 text-sm text-muted">
+          試試看：「幫我建一個 dashboard，放 2330 的 K 線、外資買賣超，還有月營收 YoY」
+        </p>
       </Card>
 
       <p className="text-xs text-muted">

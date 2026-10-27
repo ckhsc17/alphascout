@@ -10,7 +10,8 @@
     "./features": "./src/features/tw-snapshot.ts",
     "./providers/sec": "./src/providers/sec/index.ts",
     "./datasets": "./src/datasets/index.ts",
-    "./screener": "./src/screener/index.ts"
+    "./screener": "./src/screener/index.ts",
+    "./dashboards": "./src/dashboards/index.ts"
   },
   "scripts": {
     "test": "vitest run",

@@ -51,6 +51,7 @@ export const twScreen = defineDataset({
     },
   },
   source: "AlphaScout indicator snapshots",
+  openColumns: true,
   columns: {
     symbol: { type: "string", description: "Stock code" },
     name: { type: "string", description: "Short name" },

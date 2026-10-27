@@ -58,6 +58,8 @@ export interface Dataset<P extends z.ZodType = z.ZodType> {
   columns: Record<string, ColumnSpec>;
   source: string;
   notes?: string[];
+  /** Rows may carry extra columns beyond `columns` (e.g. screen fields). */
+  openColumns?: boolean;
   /** Example params, shown to AI clients in `describe_dataset`. */
   example: z.input<P>;
   run: (db: Db, params: z.output<P>) => Promise<{ asOf: string | null; rows: Row[] }>;
